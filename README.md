@@ -1,2 +1,2 @@
 # MartianEclipses
-Educational tool to demonstrate how lunar eclipses happen by considering Martian eclipses of Phobos and Deimos.
+An educational tool to demonstrate how lunar eclipses occur by considering Martian eclipses of Phobos and Deimos.
