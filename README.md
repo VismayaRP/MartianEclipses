@@ -4,3 +4,5 @@ Eclipse not implemented yet, but visibility done! Still need to implement depend
 
 ## How to run
 After cloning the repo, run python main.py
+
+[![A rectangular badge, half black half purple containing the text made at Code Astro](https://img.shields.io/badge/Made%20at-Code/Astro-blueviolet.svg)](https://semaphorep.github.io/codeastro/)
