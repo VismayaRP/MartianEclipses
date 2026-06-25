@@ -3,10 +3,22 @@ requires = ["setuptools >= 77.0.3"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "MartianEclipses"
+name = "SatVis"
 version = "0.0.1"
-
+description = "Interactive satellite visibility visualization for Martian moons"
+readme = "README.md"
+requires-python = ">=3.10"
 dependencies = [
   "numpy",
-  "matplotlib"
+  "matplotlib",
 ]
+
+[project.scripts]
+SatVis = "SatVis.main:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["SatVis*"]
+
+[tool.setuptools.package-data]
+SatVis = ["img/*"]

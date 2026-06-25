@@ -10,7 +10,7 @@ from matplotlib.path import Path
 from matplotlib.patches import PathPatch
 from matplotlib.widgets import Slider
 
-from calc import Visibility
+from .calc import Visibility
 
 MARS_MAP_PATH = FilePath(__file__).resolve().parent / "img" / "mars_names.png"
 
