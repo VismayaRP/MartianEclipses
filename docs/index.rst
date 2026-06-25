@@ -15,4 +15,5 @@ documentation for details.
    :maxdepth: 2
    :caption: Contents:
 
-   MartianEclipse.rst
+   animate_slider.rst
+   calculations.rst
