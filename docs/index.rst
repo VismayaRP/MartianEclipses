@@ -15,5 +15,4 @@ documentation for details.
    :maxdepth: 2
    :caption: Contents:
 
-   animate_slider.rst
    calculations.rst

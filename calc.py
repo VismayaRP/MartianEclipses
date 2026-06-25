@@ -17,6 +17,10 @@ class Visibility:
     where alpha is the maximum elevation angle (latitude) such that the satellite is visible, 
     theta is surface latitude, phi is surface longitude, and phi0 is the sub-satellite longitude.
     Note that this assumes perfect equitorial orbit, where the satellite is always on top of the equator.
+
+    Parameters:
+        radius_ratio (float): Ratio of the satellite radius (r) to Mars surface radius (R)
+        satellite_orbit_ratio (float): Ratio of the satellite orbit radius (d) to R + r
   """
     # Mess around with these values to see how the visibility footprint changes
     def __init__(self, radius_ratio: float = 0.1, satellite_orbit_ratio: float = 2.0):
