@@ -10,35 +10,34 @@ from matplotlib.path import Path
 from matplotlib.patches import PathPatch
 from matplotlib.widgets import Slider
 
-from calculations import PhobosVisibility
+from calc import Visibility
 
 MARS_MAP_PATH = FilePath(__file__).resolve().parent / "img" / "mars_names.png"
 
 
-class PhobosVisibilityWidget:
+class VisibilityWidget:
     """Animate the Phobos visibility footprint over an equirectangular Mars map."""
 
     def __init__(
         self,
-        visibility: Optional[PhobosVisibility] = None,
+        visibility: Optional[Visibility] = None,
         image_path: FilePath = MARS_MAP_PATH,
         footprint_points: int = 500,
     ):
-        self.visibility = visibility or PhobosVisibility()
+        self.visibility = visibility or Visibility()
         self.image_path = image_path
         self.footprint_points = footprint_points
         self._fig = None
         self._ax = None
         self._long_slider = None
-        self._orbit_slider = None
         self._shade_patch = None
         self._boundary_lines: list = []
 
 
     def _setup_figure(self) -> None:
         self._fig, self._ax = plt.subplots(figsize=(12, 6))
-        self._fig.subplots_adjust(bottom=0.18)
 
+        # Set up sliders for longitude and latitude
         self._long_slider_ax = self._fig.add_axes((0.2, 0.01, 0.6, 0.03))
         self._long_slider = Slider(
             self._long_slider_ax,
@@ -50,19 +49,37 @@ class PhobosVisibilityWidget:
             orientation="horizontal",
         )
 
-        orbit_min = self.visibility.r_mars + 0.1
-        orbit_max = max(self.visibility.orbit_phobos * 1.5, orbit_min + 0.1)
-        self._orbit_slider_ax = self._fig.add_axes((0.2, 0.055, 0.6, 0.03))
-        self._orbit_slider = Slider(
-            self._orbit_slider_ax,
-            "Distance of the moon",
-            valmin=orbit_min,
-            valmax=orbit_max,
-            valinit=self.visibility.orbit_phobos,
-            valstep=0.1,
-            orientation="horizontal",
+        # Add slider for radius ratio, see calc.py for more details
+        self._radius_ratio_ax = self._fig.add_axes((0.03, 0.2, 0.03, 0.6))
+        self._radius_ratio_slider = Slider(
+            self._radius_ratio_ax,
+            "Sphere Radius Ratio",
+            valmin=1e-3,
+            valmax=1.0,
+            valinit=self.visibility.radius_ratio,
+            valstep=1e-5,
+            orientation="vertical",
         )
+        self._radius_ratio_slider.label.set_position((-0.5, 0.5))
+        self._radius_ratio_slider.label.set_rotation(90)
+        self._radius_ratio_slider.label.set_ha("center")
+        self._radius_ratio_slider.label.set_va("center")
 
+        # Add slider for satellite orbit ratio, see calc.py for more details
+        self._satellite_orbit_ratio_ax = self._fig.add_axes((0.92, 0.2, 0.03, 0.6))
+        self._satellite_orbit_ratio_slider = Slider(
+            self._satellite_orbit_ratio_ax,
+            "Satellite Orbit Ratio",
+            valmin=1.0,
+            valmax=50,
+            valinit=self.visibility.satellite_orbit_ratio,
+            valstep=0.1,
+            orientation="vertical",
+        )
+        self._satellite_orbit_ratio_slider.label.set_position((1.5, 0.5))
+        self._satellite_orbit_ratio_slider.label.set_rotation(-90)
+        self._satellite_orbit_ratio_slider.label.set_ha("center")
+        self._satellite_orbit_ratio_slider.label.set_va("center")
 
         map_image = plt.imread(self.image_path)
         self._ax.imshow(
@@ -75,7 +92,7 @@ class PhobosVisibilityWidget:
         self._ax.set_ylim(-90, 90)
         self._ax.set_xlabel("Longitude (°)")
         self._ax.set_ylabel("Latitude (°)")
-        self._ax.set_title("Mars Moon Visibility Footprint", fontsize=16, pad=12)
+        self._ax.set_title("Satellite Visibility Footprint", fontsize=16, pad=12)
         self._ax.grid(linestyle="--", color="white", alpha=0.35)
 
         self._shade_patch = PathPatch(
@@ -109,14 +126,12 @@ class PhobosVisibilityWidget:
         )
         return Path(vertices, codes)
 
-    def _update(self, val: float):
-        """
-        Update the visibility footprint and boundary lines depending on
-        slider selected long. and lat.
-        """
-        assert self._long_slider is not None
-        assert self._fig is not None
-        assert self._shade_patch is not None
+    def _update(self, _val: float | None = None) -> None:
+        """Redraw footprint from current slider values."""
+        self.visibility.update_params(
+            self._radius_ratio_slider.val,
+            self._satellite_orbit_ratio_slider.val,
+        )
         subpoint_lon = self._long_slider.val
         phi_deg, lon_east, lon_west = self.visibility.footprint_boundaries(
             subpoint_lon, self.footprint_points
@@ -130,16 +145,11 @@ class PhobosVisibilityWidget:
         self._boundary_lines[1].set_data(lon_west, phi_deg)
         self._fig.canvas.draw_idle()
 
-    def _update_orbit(self, val: float):
-        self.visibility.set_orbit_phobos(val)
-        self._update(val)
-        
     def interact(self):
         self._setup_figure()
-        assert self._long_slider is not None
-        assert self._orbit_slider is not None
         self._long_slider.on_changed(self._update)
-        self._orbit_slider.on_changed(self._update_orbit)
-        self._update(self._long_slider.val)
+        self._radius_ratio_slider.on_changed(self._update)
+        self._satellite_orbit_ratio_slider.on_changed(self._update)
+        self._update()
 
         plt.show()
