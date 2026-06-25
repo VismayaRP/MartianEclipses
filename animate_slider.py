@@ -30,14 +30,15 @@ class PhobosVisibilityWidget:
         self._fig = None
         self._ax = None
         self._long_slider = None
+        self._orbit_slider = None
         self._shade_patch = None
         self._boundary_lines: list = []
 
 
     def _setup_figure(self) -> None:
         self._fig, self._ax = plt.subplots(figsize=(12, 6))
+        self._fig.subplots_adjust(bottom=0.18)
 
-        # Set up sliders for longitude and latitude
         self._long_slider_ax = self._fig.add_axes((0.2, 0.01, 0.6, 0.03))
         self._long_slider = Slider(
             self._long_slider_ax,
@@ -45,6 +46,19 @@ class PhobosVisibilityWidget:
             valmin=-180,
             valmax=180,
             valinit=0,
+            valstep=0.1,
+            orientation="horizontal",
+        )
+
+        orbit_min = self.visibility.r_mars + 0.1
+        orbit_max = max(self.visibility.orbit_phobos * 1.5, orbit_min + 0.1)
+        self._orbit_slider_ax = self._fig.add_axes((0.2, 0.055, 0.6, 0.03))
+        self._orbit_slider = Slider(
+            self._orbit_slider_ax,
+            "Distance of the moon",
+            valmin=orbit_min,
+            valmax=orbit_max,
+            valinit=self.visibility.orbit_phobos,
             valstep=0.1,
             orientation="horizontal",
         )
@@ -61,7 +75,7 @@ class PhobosVisibilityWidget:
         self._ax.set_ylim(-90, 90)
         self._ax.set_xlabel("Longitude (°)")
         self._ax.set_ylabel("Latitude (°)")
-        self._ax.set_title("Phobos Visibility Footprint", fontsize=16, pad=12)
+        self._ax.set_title("Mars Moon Visibility Footprint", fontsize=16, pad=12)
         self._ax.grid(linestyle="--", color="white", alpha=0.35)
 
         self._shade_patch = PathPatch(
@@ -100,6 +114,9 @@ class PhobosVisibilityWidget:
         Update the visibility footprint and boundary lines depending on
         slider selected long. and lat.
         """
+        assert self._long_slider is not None
+        assert self._fig is not None
+        assert self._shade_patch is not None
         subpoint_lon = self._long_slider.val
         phi_deg, lon_east, lon_west = self.visibility.footprint_boundaries(
             subpoint_lon, self.footprint_points
@@ -112,10 +129,17 @@ class PhobosVisibilityWidget:
         self._boundary_lines[0].set_data(lon_east, phi_deg)
         self._boundary_lines[1].set_data(lon_west, phi_deg)
         self._fig.canvas.draw_idle()
+
+    def _update_orbit(self, val: float):
+        self.visibility.set_orbit_phobos(val)
+        self._update(val)
         
     def interact(self):
         self._setup_figure()
+        assert self._long_slider is not None
+        assert self._orbit_slider is not None
         self._long_slider.on_changed(self._update)
+        self._orbit_slider.on_changed(self._update_orbit)
         self._update(self._long_slider.val)
 
         plt.show()

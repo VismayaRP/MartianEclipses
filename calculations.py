@@ -18,12 +18,18 @@ class PhobosVisibility:
   """
     # Mess around with these values to see how the visibility footprint changes
     def __init__(self, r_mars: float = 3.396, orbit_phobos: float = 9.4):
-        # Distances in 10^3 km
         self.r_mars = r_mars
-        self.orbit_phobos = orbit_phobos
-        self.k = r_mars / orbit_phobos
+        self.set_orbit_phobos(orbit_phobos)
+
+    def _recompute_geometry(self) -> None:
+        self.k = self.r_mars / self.orbit_phobos
         self.theta_max = np.arccos(self.k)
         self.max_visibility_deg = np.degrees(self.theta_max)
+
+    def set_orbit_phobos(self, orbit_phobos: float) -> None:
+        """Update the Phobos orbit distance and recompute derived values."""
+        self.orbit_phobos = orbit_phobos
+        self._recompute_geometry()
 
     def _latitude_grid(self, n_points: int = 500) -> np.ndarray:
         return np.linspace(-self.theta_max, self.theta_max, n_points)
