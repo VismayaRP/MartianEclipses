@@ -1,3 +1,12 @@
 [build-system]
 requires = ["setuptools >= 77.0.3"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "MartianEclipses"
+version = "0.0.1"
+
+dependencies = [
+  "numpy",
+  "matplotlib"
+]
