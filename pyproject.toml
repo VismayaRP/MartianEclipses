@@ -3,8 +3,8 @@ requires = ["setuptools >= 77.0.3"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "SatVis"
-version = "0.0.1"
+name = "SatVisMars"
+version = "0.0.2"
 description = "Interactive satellite visibility visualization for Martian moons"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -14,11 +14,11 @@ dependencies = [
 ]
 
 [project.scripts]
-SatVis = "SatVis.main:main"
+SatVisMars = "SatVisMars.main:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["SatVis*"]
+include = ["SatVisMars*"]
 
 [tool.setuptools.package-data]
-SatVis = ["img/*"]
+SatVisMars = ["img/*"]
