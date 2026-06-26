@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "SatVisMars"
-version = "0.0.3"
+version = "0.0.4"
 description = "Interactive satellite visibility visualization for Martian moons"
 readme = "README.md"
 requires-python = ">=3.10"
